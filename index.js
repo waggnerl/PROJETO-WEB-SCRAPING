@@ -1,33 +1,8 @@
 const puppeteer = require('puppeteer');
 const replaceAll = require('string.prototype.replaceall');
+const axios = require('./services/axios');
 
 
-{/*
-//=========================
-(async () => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.goto('https://www.google.com/search?q=melhor+provedor+de+internet+por+estado&rlz=1C1GCEU_pt-BRBR999BR999&sxsrf=APq-WBtjH01KwkekbWnj9svrKpJ2WxleAg%3A1648671626258&ei=irtEYpmTD7vM1sQPr9yy8Ao&ved=0ahUKEwiZgIm11O72AhU7ppUCHS-uDK4Q4dUDCA4&uact=5&oq=melhor+provedor+de+internet+por+estado&gs_lcp=Cgdnd3Mtd2l6EAM6BwgAEEcQsANKBAhBGABKBAhGGABQ0QZY0BNgtRVoAXAAeACAAboBiAHtD5IBBDAuMTKYAQCgAQHIAQjAAQE&sclient=gws-wiz');
-  const rankPovedor = await page.evaluate(() => {
-    return {
-      urlRankProvedor : document.querySelector('.truncation-information').href
-    }
-  });
-  await page.goto(rankPovedor.urlRankProvedor);
-  const rankPovedorEstado = await page.evaluate(() => {
-    return {
-      urlrankPovedorEstado : document.querySelector('.text').children.innerHTML
-    }
-  });
-
-  console.log(rankPovedorEstado.urlrankPovedorEstado)
-
-
-  //await page.screenshot({ path: 'example.png' });
-
-  await browser.close();
-})(); 
-*/}
 (async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -82,19 +57,31 @@ const replaceAll = require('string.prototype.replaceall');
    const sites = []
    const empresas = []
    let htmlSite = ''
+   let nome = ''
    for (let index = 0; index < arr.length; index++) {
+    if (index === 10) { arr[index] = `Lci Telecom` }    
+    nome = arr[index]
    arr[index] = arr[index].replace(' ','')
    empresas.push(arr[index])
    arr[index] = arr[index].replace(' ','+')
    let valor = arr[index] 
    if(index === 0){valor = `${arr[index]}+provedor+de+internet+acre`}
-    if (index === 10) { valor = `${arr[index]}+provedor+de+internet+mato+grosso` }
-   await page.goto(`https://www.google.com/search?q=${valor}&rlz=1C1GCEU_pt-BRBR999BR999&oq=vivo&aqs=chrome..69i57j46i199i291i433i512j0i433i512l2j0i131i433i512j0i433i512j69i61l2.574j0j7&sourceid=chrome&ie=UTF-8`);
-   htmlSite = await page.evaluate(() => {
+
+    if (index === 10) { valor = `${arr[index]}+provedor+de+internet+mato+grosso` }    
+     await page.goto(`https://www.google.com/search?q=${valor}+site&rlz=1C1GCEU_pt-BRBR999BR999&oq=vivo&aqs=chrome..69i57j46i199i291i433i512j0i433i512l2j0i131i433i512j0i433i512j69i61l2.574j0j7&sourceid=chrome&ie=UTF-8`);
+  htmlSite = await page.evaluate(() => {
      return {
       siteProvedor : document.querySelector('.iUh30.tjvcx').innerHTML}
    });
+   try {
+    await axios.post('/data', {
+      nome: nome,
+      site:htmlSite.siteProvedor
+  })} catch (err) {
+    console.log(err)
+  }
   sites.push(htmlSite.siteProvedor)
+  console.log(htmlSite.siteProvedor)
  }
  console.log(sites)
 
